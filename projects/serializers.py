@@ -12,8 +12,8 @@ class TagSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class DIYProjectSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
-    tags = TagSerializer(many=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
 
     class Meta:
         model = DIYProject
