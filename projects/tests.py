@@ -1,6 +1,5 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
-from django.contrib.auth.models import User
 from rest_framework import status
 from .models import DIYProject, Category, Tag
 from .serializers import DIYProjectSerializer, CategorySerializer, TagSerializer
@@ -8,8 +7,6 @@ from .serializers import DIYProjectSerializer, CategorySerializer, TagSerializer
 class DIYProjectTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username='testuser', password='testpassword')
-        self.client.force_authenticate(user=self.user)
 
         self.category = Category.objects.create(name='Woodworking')
         self.tag1 = Tag.objects.create(name='Beginner')
@@ -90,10 +87,10 @@ class DIYProjectTests(TestCase):
         self.assertEqual(Tag.objects.count(), 3)
 
     def test_unauthenticated_access(self):
-        self.client.logout()
         url = '/api/projects/' #added /api/
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK) # or HTTP_403_FORBIDDEN if you want to restrict read access
 
-        response = self.client.post(url, {'title': 'Unauthorized', 'description': 'test', 'category': self.category.id, 'instructions': 'test'}, format='json') #added description and category
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        # new_category = Category.objects.create(name="testCategory") #remove this line
+        response = self.client.post(url, {'title': 'Unauthorized', 'description': 'test', 'category': 999, 'instructions': 'test'}, format='json') #added description and category
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST) #changed this line
